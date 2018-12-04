@@ -9,6 +9,7 @@
 namespace App\Controller;
 
 
+use App\Entity\Project;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -24,7 +25,12 @@ class ProjectController extends AbstractController
         //var_dump($url);
         //die('debug generate url');
         /*return new Response('<html><body><h1>liste de Projets</h1></body></html>');*/
-        return $this->render('index.html.twig', ['projects' =>[]]);
+
+        // Récuperation du Répository des project
+
+        $porjectRepository = $this->getDoctrine()->getRepository(Project::class);
+        $projects = $porjectRepository->findAll();
+        return $this->render('index.html.twig', ['projects' =>$projects]);
 
 
     }
@@ -82,6 +88,43 @@ class ProjectController extends AbstractController
         $message = $session->getFlashBag()->get('success');
 
         return new Response('Message flash:'.implode('<br>', $message));
+    }
+
+    /**
+     * @return Response
+     * @Route("/projet/creation/manuel")
+     */
+    public function createmanual():Response{
+
+        //creation d'un projet
+
+        $project = new Project();
+
+        //Remplissage du projet
+
+        $project
+            ->setName('Project Symfony')
+
+            ->setDescription('ceci est un super project')
+            ->setImage('hamac.jpg')
+            ->setProgrammedAt(new \DateTime('2018-12-20'))
+            ->setIsPublished('true')
+            ->setUrl('/project/index');
+
+
+
+        // Récupération de doctrine
+        $manager = $this->getDoctrine()->getManager();
+
+        // préparation du sql
+        $manager->persist($project);
+        // exécution du sql
+        $manager->flush();
+        //rediraction ver l'accueil
+
+        return $this->redirectToRoute('index');
+
+
     }
 }
 
