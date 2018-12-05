@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+
+{% block main %}
+    <main class=container">
+
+    <h1>{{ project.name }}</h1>
+        <img class="card-img-top" src="{{asset('uploaded/project/' ~ project.image)}}" alt="Card image cap">
+        <p class="text_muted">
+            Publié le {{ project.createdAt|date('d/m/Y') }}
+        </p>
+        <h2>Information Sur la projets</h2>
+        <ul>
+            <li>créé le {{ project.programmedAt|date('d/m/Y')}}</li>
+        </ul>
+        <h2>Description du projets</h2>
+        <p>{{ project.description }}</p>
+    </main>
+
+{% endblock %}
+
+
+

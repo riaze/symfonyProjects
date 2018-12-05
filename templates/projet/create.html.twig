@@ -1,0 +1,18 @@
+
+{% extends 'base.html.twig' %}
+
+{% block title %}creation d'un Projet{% endblock %}
+
+{% block main %}
+<main class="container">
+   <h1>Creation d'un Projet</h1>
+
+    {{ form_start(createForm) }}
+    {{ form_widget(createForm) }}
+   <input type="submit" value="Créer le projet" class="btn btn-success">
+
+    {{ form_end(createForm) }}
+
+</main>
+
+{% endblock %}

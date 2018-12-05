@@ -10,10 +10,13 @@ namespace App\Controller;
 
 
 use App\Entity\Project;
+use App\Form\ProjectType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ProjectController extends AbstractController
@@ -21,7 +24,9 @@ class ProjectController extends AbstractController
     public function home():Response
     {
 
-        $url = $this->generateUrl('app_project_show',['id'=>155]);
+        /*$url = $this->generateUrl('app_project_show',['id'=>155]);*/
+        $url = $this->generateUrl('app_project_show',['slug'=> 'eeee-eeee']);
+
         //var_dump($url);
         //die('debug generate url');
         /*return new Response('<html><body><h1>liste de Projets</h1></body></html>');*/
@@ -30,6 +35,7 @@ class ProjectController extends AbstractController
 
         $porjectRepository = $this->getDoctrine()->getRepository(Project::class);
         $projects = $porjectRepository->findAll();
+        $projects = $porjectRepository->findBy(['isPublished' => true]);
         return $this->render('index.html.twig', ['projects' =>$projects]);
 
 
@@ -37,10 +43,42 @@ class ProjectController extends AbstractController
 
     /**
      * @return Response
-     * @Route("/projet/{id}", requirements={"id"="\d+"})
+     * @Route("/oldprojet/{slug}")
+     * @return Response
      */
-    public function show(int $id){
-        return new Response("<html><body><h1>details de projets: $id</h1></body></html>");
+    ///requirements={"id"="\d+"}
+    public function Oldshow(string $slug):Response{
+
+        //Récupération du Repository
+
+        $projetctRepo = $this->getDoctrine()->getRepository(Project::class);
+
+        //Récupération du projet par rapport à son string
+
+        $project = $projetctRepo->findOneBy(['slug' => $slug]);
+
+        if(is_null($project)){
+            throw $this->createNotFoundException('Projet non-trouver(slug');
+
+        }
+        return $this->render('project-show.html.twig', compact("project"));
+
+
+        /*return new Response("<html><body><h1>details de projets: $id</h1></body></html>");*/
+    }
+
+    /**
+     * @param Project $project
+     * @Route("/projet/{slug}")
+     * @return Response
+     */
+    public function show(Project $project):Response{
+
+        //Récupération du Repository
+
+        return $this->render('project-show.html.twig', compact("project"));
+
+
     }
 
     /**
@@ -48,7 +86,7 @@ class ProjectController extends AbstractController
      * @return Response
      * @Route("/projet/creation")
      */
-    public function create(SessionInterface $session): Response
+    public function createOld(SessionInterface $session): Response
     {
         $session->set('message', 'le projets a bien été ajouté');
         return $this->redirectToRoute('index');
@@ -109,7 +147,7 @@ class ProjectController extends AbstractController
             ->setImage('hamac.jpg')
             ->setProgrammedAt(new \DateTime('2018-12-20'))
             ->setIsPublished('true')
-            ->setUrl('/project/index');
+            ->setUrl('www.google.com');
 
 
 
@@ -126,6 +164,85 @@ class ProjectController extends AbstractController
 
 
     }
+
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws \Exception
+     * @Route("/projet/creation/formulaire")
+     */
+    public  function create(Request $request):Response{
+        // creation formulaire
+        $project = new Project();
+        $form = $this->createForm(ProjectType::class,$project);
+
+        //traitment du formulaire
+
+        $form->handleRequest($request);
+
+        //verification valité
+        if($form->isSubmitted() && $form->isValid()){
+
+            $project = $form->getData();
+
+            $manger = $this->getDoctrine()->getManager();
+            $manger->persist($project);
+            $manger->flush();
+
+            return $this->redirectToRoute('index');
+        }
+
+        //Renvoi du formulaire
+        return $this->render('projet/create.html.twig',[
+           'createForm' => $form->createView()
+
+        ]);
+
+        //
+
+    }
+
+    /**
+     * @param Project $project
+     * @return Response
+     * @Route("/projet/{slug}/edition")
+     */
+    public  function update(Project $project):Response
+    {
+     // MOdification du projet
+
+        $project->setUrl('https://www.youtube.com/');
+
+     // Récupération du manager
+        $manager = $this->getDoctrine()->getManager();
+
+     // Execution SQL
+        $manager->flush();
+     // Ajout d'un message flush
+       $this->addFlash('success', 'votre projet a été modifié');
+     //Redirection cer l'accueil
+        return $this->redirectToRoute('index');
+
+    }
+
+    /**
+     * @param Project $project
+     * @return Response
+     * @Route("/projet/{slug}/delete")
+     */
+    public function delete(Project $project):Response{
+        if(!$project){
+            throw  new NotFoundHttpException("Project non trové");
+        }
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($project);
+        $em->flush();
+        $this->addFlash('danger', 'votre projet a été supprimer');
+        return $this->redirectToRoute('index');
+
+    }
+
+
 }
 
 

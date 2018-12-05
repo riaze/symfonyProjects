@@ -9,12 +9,15 @@
         <div class="card-group row">
             {% for projet in projects %}
                 <div class="card col-4" style="width: 18rem;">
-                    <img class="card-img-top" src="/img/{{ projet.image }}" alt="Card image cap">
+                    <img class="card-img-top" src="{{asset('uploaded/project/' ~ projet.image)}}" alt="Card image cap">
                     <div class="card-body">
                         <h5 class="card-title">{{ projet.name }}</h5>
                         <p class="card-text">{{ projet.description | slice(0,100) }}...</p>
+
                         <p class="card-text"><a href="{{ projet.url }}">{{ projet.url }}</a></p>
-                        <a href="/projet/{{ projet.id }}" class="btn btn-primary">Voir le projet</a>
+                        <a href="{{ path('app_project_show',{slug:projet.slug})}}" class="btn btn-primary">Voir le projet</a>
+                        <a href="{{ path('app_project_update',{slug:projet.slug})}}" class="btn btn-primary">Modifier</a>
+                        </br><a href="{{ path('app_project_delete',{slug:projet.slug})}}" class="btn btn-danger">supperimer</a>
                     </div>
                 </div>
             {% endfor %}

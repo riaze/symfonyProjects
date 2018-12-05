@@ -25,10 +25,10 @@
                         <a class="nav-link" href="/">Liste des projets <span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/projet/1">Projet PHP <span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{{ path('app_project_create') }}">Create new peojects <span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/projet/2">Projet Symfony<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{{ path('app_project_show', {'slug': 'project-symfony'}) }}">Projet Symfony<span class="sr-only">(current)</span></a>
                     </li>
                 </ul>
                 <form class="form-inline my-2 my-md-0">
@@ -40,14 +40,18 @@
 
     {% block flash %}
 
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>{{ message }}</strong> You should check in on some of those fields below.
+        {% for type, message in app.flashes %}
+            {% for message in message %}
+            <div class="alert alert-secondary alert-{{ type }} alert-dismissible fade show" role="alert">
+            <strong>{{ message }}</strong>
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
             </div>
         {% endfor %}
+        {% endfor %}
+
+
 
     {% endblock %}
 {% endblock %}
